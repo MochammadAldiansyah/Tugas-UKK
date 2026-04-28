@@ -1,10 +1,15 @@
 {
   "version": 2,
+  "buildCommand": "python manage.py collectstatic --noinput && python manage.py migrate",
   "builds": [
     {
       "src": "antrianbarang/wsgi.py",
-      "use": "@vercel/python",
-      "config": { "maxLambdaSize": "15mb", "runtime": "python3.11" }
+      "use": "@vercel/python@latest",
+      "config": { 
+        "maxLambdaSize": "15mb", 
+        "runtime": "python3.11",
+        "pythonVersion": "3.11"
+      }
     }
   ],
   "routes": [
@@ -18,5 +23,7 @@
     }
   ],
   "installCommand": "pip install -r requirements.txt",
-  "buildCommand": "python manage.py collectstatic --noinput && python manage.py migrate"
+  "env": {
+    "PYTHONUNBUFFERED": "1"
+  }
 }
