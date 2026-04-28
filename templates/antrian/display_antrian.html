@@ -1,0 +1,96 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Display Antrian - AntrianBarang</title>
+  <link rel="stylesheet" href="{% static 'css/style.css' %}">
+  <style>
+    body{background:var(--gray-900);margin:0}
+    .display-navbar{display:flex;justify-content:space-between;align-items:center;padding:16px 32px;color:#fff}
+    .display-navbar .brand{font-size:1.125rem;font-weight:800;color:#fff}
+    .display-navbar .brand span{color:var(--primary-light)}
+    .display-navbar .nav-links a{color:var(--gray-400);text-decoration:none;font-size:.875rem;margin-left:24px}
+    .display-navbar .nav-links a.active{color:#fff}
+  </style>
+</head>
+<body>
+  <nav class="display-navbar">
+    <div class="brand">Antrian<span>Barang</span></div>
+    <div class="nav-links">
+      <a href="{% url 'antrian:ambil_antrian' %}">Ambil Antrian</a>
+      <a href="{% url 'antrian:cek_status' %}">Cek Status</a>
+      <a href="#">Bantuan</a>
+    </div>
+  </nav>
+
+  <div style="padding:16px 32px;">
+    <div class="display-grid">
+      <!-- Main: Current Number -->
+      <div class="display-current">
+        <div class="display-status-label">SEDANG DILAYANI</div>
+        {% if current_serving %}
+          <div class="display-number">{{ current_serving.ticket_number }}</div>
+          <div class="display-counter-badge">{{ current_serving.counter|default:"LOKET 01" }}</div>
+        {% else %}
+          <div class="display-number" style="font-size:4rem;color:var(--gray-500);">---</div>
+          <p style="color:var(--gray-500);">Belum ada antrian dipanggil</p>
+        {% endif %}
+        <div class="display-info-row">
+          <div class="display-info-item">
+            <div class="icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div>
+            <div class="label">Rata-Rata Tunggu</div>
+            <div class="value">{{ est_wait|default:"0" }} Menit</div>
+          </div>
+          <div class="display-info-item">
+            <div class="icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg></div>
+            <div class="label">Sisa Antrian</div>
+            <div class="value">{{ total_waiting }} Orang</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Sidebar: Upcoming -->
+      <div class="display-sidebar">
+        <h3>Antrian Berikutnya</h3>
+        <ul class="upcoming-list">
+          {% for ticket in upcoming %}
+          <li class="upcoming-item">
+            <span class="number">{{ ticket.ticket_number }}</span>
+          </li>
+          {% empty %}
+          <li class="upcoming-item"><span style="color:var(--gray-500);">Tidak ada antrian</span></li>
+          {% endfor %}
+        </ul>
+
+        <div class="cta-no-ticket">
+          <p>Belum Memiliki Nomor Antrian?</p>
+          <a href="{% url 'antrian:ambil_antrian' %}" class="btn">AMBIL ANTRIAN</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Commitment Banner -->
+    <div style="margin-top:32px;background:linear-gradient(135deg,rgba(30,64,175,.9),rgba(15,23,42,.9));border-radius:var(--radius-lg);padding:48px;text-align:center;color:#fff;">
+      <h2 style="font-size:1.5rem;font-weight:700;margin-bottom:8px;">Komitmen Kami Pada Efisiensi</h2>
+      <p style="color:var(--gray-300);max-width:500px;margin:0 auto;">Sistem manajemen antrian kami memastikan setiap barang diproses. Dengan transparansi penuh dan kecepatan prima.</p>
+    </div>
+
+    <footer style="padding:24px 0;display:flex;justify-content:space-between;color:var(--gray-500);font-size:.8125rem;border-top:1px solid rgba(255,255,255,.1);margin-top:32px;">
+      <span>AntrianBarang Logistics</span>
+      <span>&copy; 2024 AntrianBarang Logistics. All rights reserved.</span>
+      <div style="display:flex;gap:16px;">
+        <a href="#" style="color:var(--gray-500);text-decoration:none;">Kebijakan Privasi</a>
+        <a href="#" style="color:var(--gray-500);text-decoration:none;">Syarat Layanan</a>
+        <a href="#" style="color:var(--gray-500);text-decoration:none;">Hubungi Kami</a>
+      </div>
+    </footer>
+  </div>
+
+  <script>
+    // Auto-refresh every 5 seconds
+    setInterval(()=>{ location.reload(); }, 10000);
+  </script>
+</body>
+</html>

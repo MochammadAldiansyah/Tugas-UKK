@@ -1,0 +1,220 @@
+{% extends "base.html" %}
+{% block title %}Cek Status Antrian{% endblock %}
+
+{% block content %}
+<div class="page-container">
+  <div class="page-header">
+    <h1>Pantau Pesanan Anda</h1>
+    <p>Masukkan kode unik atau nomor handphone Anda untuk melihat status antrian secara real-time.</p>
+  </div>
+
+  <!-- Notification Banner (hidden, shown via JS when ticket is called) -->
+  <div id="callNotification" class="notification-banner" style="display:none;">
+    <div class="notification-icon"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg></div>
+    <div class="notification-content">
+      <strong id="notifTitle">Nomor Anda Dipanggil!</strong>
+      <p id="notifMessage">Silakan menuju loket.</p>
+    </div>
+    <button onclick="this.parentElement.style.display='none'" class="notification-close">&times;</button>
+  </div>
+
+  <!-- Currently Called -->
+  {% if current_called %}
+  <div class="current-call-banner">
+    <div class="current-call-icon"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg></div>
+    <div>
+      <p style="font-size:.75rem;color:var(--primary);font-weight:600;text-transform:uppercase;letter-spacing:.5px;">Sedang Dipanggil</p>
+      <p style="font-size:1.5rem;font-weight:800;color:var(--gray-900);">{{ current_called.ticket_number }}</p>
+      <p style="font-size:.8125rem;color:var(--gray-500);">{{ current_called.customer_name }} &bull; {{ current_called.counter|default:"Loket 01" }}</p>
+    </div>
+  </div>
+  {% endif %}
+
+  <!-- Search -->
+  <form method="get" class="search-bar">
+    <input type="text" name="query" class="form-input" placeholder="Cari: kode tracking, nama, no HP, atau nomor antrian..." value="{{ query }}">
+    <button type="submit" class="btn btn-primary" style="width:auto;">CARI</button>
+  </form>
+
+  <!-- Search Results -->
+  {% if results is not None %}
+    {% if results %}
+      <h3 style="font-size:.875rem;font-weight:700;color:var(--gray-500);text-transform:uppercase;margin-bottom:12px;">Hasil Pencarian ({{ results|length }})</h3>
+      {% for ticket in results %}
+      <div class="ticket-result {% if ticket.status == 'called' %}ticket-called{% endif %}">
+        <div class="ticket-result-header">
+          <div>
+            <span class="ticket-number-big">{{ ticket.ticket_number }}</span>
+            <span style="margin-left:8px;font-size:.8125rem;color:var(--gray-400);">{{ ticket.tracking_code }}</span>
+            <span style="margin-left:8px;font-size:.875rem;color:var(--gray-600);">{{ ticket.customer_name }}</span>
+          </div>
+          <span class="badge badge-{{ ticket.status }}">{{ ticket.get_status_display }}</span>
+        </div>
+        <div class="ticket-meta">
+          <div class="ticket-meta-item"><label>LAYANAN</label><span>{{ ticket.service_type }}</span></div>
+          <div class="ticket-meta-item"><label>LOKET</label><span>{{ ticket.counter|default:"Menunggu" }}</span></div>
+          <div class="ticket-meta-item"><label>WAKTU MASUK</label><span>{{ ticket.created_at|date:"H:i" }} WIB</span></div>
+        </div>
+      </div>
+      {% endfor %}
+    {% else %}
+      <div class="card"><div class="card-body" style="text-align:center;padding:32px;">
+        <p style="color:var(--gray-500);">Tidak ditemukan antrian dengan "<strong>{{ query }}</strong>"</p>
+      </div></div>
+    {% endif %}
+  {% endif %}
+
+  <!-- Mini Stats -->
+  <div class="stats-grid" style="margin-top:24px;">
+    <div class="stat-card">
+      <div class="stat-label">Total Hari Ini</div>
+      <div class="stat-value">{{ total_today }}</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Menunggu</div>
+      <div class="stat-value" style="color:var(--amber-500);">{{ waiting_count }}</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Selesai</div>
+      <div class="stat-value" style="color:var(--green-500);">{{ done_count }}</div>
+    </div>
+  </div>
+
+  <!-- Live Queue Table -->
+  <div class="table-container" style="margin-top:16px;">
+    <div class="table-header">
+      <h3>Daftar Antrian Hari Ini</h3>
+      <span style="font-size:.75rem;color:var(--gray-400);" id="liveIndicator">● Live</span>
+    </div>
+    <table>
+      <thead>
+        <tr>
+          <th>No. Antrian</th>
+          <th>Kode Tracking</th>
+          <th>Nama</th>
+          <th>Layanan</th>
+          <th>Waktu</th>
+          <th>Status</th>
+        </tr>
+      </thead>
+      <tbody id="queueTableBody">
+        {% for ticket in today_queue %}
+        <tr class="{% if ticket.status == 'called' %}row-called{% endif %}">
+          <td><strong>{{ ticket.ticket_number }}</strong></td>
+          <td style="font-family:monospace;color:var(--gray-500);">{{ ticket.tracking_code }}</td>
+          <td>{{ ticket.customer_name }}</td>
+          <td>{{ ticket.service_type }}</td>
+          <td>{{ ticket.created_at|date:"H:i" }}</td>
+          <td><span class="badge badge-{{ ticket.status }}">{{ ticket.get_status_display }}</span></td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="6" style="text-align:center;padding:24px;color:var(--gray-400);">Belum ada antrian hari ini</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Aktivitas Terakhir -->
+  {% if recent_activities %}
+  <div class="card" style="margin-top:24px;">
+    <div class="card-header">Aktivitas Terakhir</div>
+    <div class="card-body">
+      <ul class="activity-list">
+        {% for act in recent_activities %}
+        <li class="activity-item">
+          <span class="activity-dot {% if act.status == 'done' %}green{% elif act.status == 'called' or act.status == 'serving' %}blue{% else %}red{% endif %}"></span>
+          <span style="flex:1;"><strong>{{ act.ticket_number }}</strong> {{ act.get_status_display }}{% if act.counter %} - {{ act.counter }}{% endif %}</span>
+          <span style="font-size:.75rem;color:var(--gray-400);">
+            {% if act.called_at %}{{ act.called_at|date:"H:i" }}{% endif %}
+          </span>
+        </li>
+        {% endfor %}
+      </ul>
+    </div>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Auto-refresh queue data every 5 seconds
+let lastCalledNumber = '{{ current_called.ticket_number|default:"" }}';
+
+function refreshQueue() {
+  fetch('/api/queue-status/')
+    .then(r => r.json())
+    .then(data => {
+      // Check if a new number was called
+      if (data.current && data.current.number !== lastCalledNumber) {
+        lastCalledNumber = data.current.number;
+        showNotification(
+          'Nomor ' + data.current.number + ' Dipanggil!',
+          'Silakan menuju ' + data.current.counter + '. Nama: ' + data.current.name
+        );
+      }
+
+      // Update table
+      if (data.all_tickets && data.all_tickets.length > 0) {
+        let html = '';
+        data.all_tickets.forEach(t => {
+          let rowClass = t.status === 'called' ? 'row-called' : '';
+          html += '<tr class="' + rowClass + '">';
+          html += '<td><strong>' + t.number + '</strong></td>';
+          html += '<td style="font-family:monospace;color:var(--gray-500);">' + t.tracking + '</td>';
+          html += '<td>' + t.name + '</td>';
+          html += '<td>' + t.service + '</td>';
+          html += '<td>' + t.time + '</td>';
+          html += '<td><span class="badge badge-' + t.status + '">' + t.status_display + '</span></td>';
+          html += '</tr>';
+        });
+        document.getElementById('queueTableBody').innerHTML = html;
+      }
+
+      // Blink live indicator
+      const li = document.getElementById('liveIndicator');
+      li.style.color = 'var(--green-500)';
+      setTimeout(() => { li.style.color = 'var(--gray-400)'; }, 500);
+    })
+    .catch(() => {});
+}
+
+function showNotification(title, message) {
+  const el = document.getElementById('callNotification');
+  document.getElementById('notifTitle').textContent = title;
+  document.getElementById('notifMessage').textContent = message;
+  el.style.display = 'flex';
+
+  // Browser notification
+  if ('Notification' in window && Notification.permission === 'granted') {
+    new Notification(title, { body: message });
+  }
+
+  // Sound
+  try {
+    const ctx = new (window.AudioContext || window.webkitAudioContext)();
+    const osc = ctx.createOscillator();
+    osc.type = 'sine';
+    osc.frequency.value = 880;
+    osc.connect(ctx.destination);
+    osc.start();
+    setTimeout(() => osc.stop(), 200);
+    setTimeout(() => {
+      const osc2 = ctx.createOscillator();
+      osc2.type = 'sine';
+      osc2.frequency.value = 1100;
+      osc2.connect(ctx.destination);
+      osc2.start();
+      setTimeout(() => osc2.stop(), 300);
+    }, 250);
+  } catch(e) {}
+}
+
+// Request notification permission
+if ('Notification' in window && Notification.permission === 'default') {
+  Notification.requestPermission();
+}
+
+setInterval(refreshQueue, 5000);
+</script>
+{% endblock %}

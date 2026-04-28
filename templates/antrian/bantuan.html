@@ -1,0 +1,201 @@
+{% extends "base.html" %}
+{% block title %}Bantuan{% endblock %}
+
+{% block content %}
+<div class="page-container">
+  <div class="page-header">
+    <h1>Pusat Bantuan</h1>
+    <p>Temukan jawaban dari pertanyaan yang sering diajukan seputar sistem antrian pengambilan barang.</p>
+  </div>
+
+  <!-- Search -->
+  <div class="search-bar" style="max-width:600px;margin:0 auto 32px;">
+    <input type="text" class="form-input" placeholder="Cari pertanyaan..." id="faqSearch" oninput="filterFAQ(this.value)">
+  </div>
+
+  <!-- FAQ Sections -->
+  <div class="faq-grid">
+    <!-- Cara Menggunakan -->
+    <div class="card faq-card">
+      <div class="card-header" style="display:flex;align-items:center;gap:10px;">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="1"/><line x1="9" y1="12" x2="15" y2="12"/><line x1="9" y1="16" x2="15" y2="16"/></svg> Cara Menggunakan
+      </div>
+      <div class="card-body">
+        <div class="faq-item" data-faq>
+          <button class="faq-question" onclick="toggleFaq(this)">
+            <span>Bagaimana cara mengambil nomor antrian?</span>
+            <span class="faq-arrow"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></span>
+          </button>
+          <div class="faq-answer">
+            <p>Kunjungi halaman <strong>Ambil Antrian</strong>, isi nama lengkap dan nomor handphone Anda, pilih jenis layanan, lalu klik tombol "Ambil Nomor Antrian". Anda akan mendapat nomor antrian dan kode tracking unik.</p>
+          </div>
+        </div>
+        <div class="faq-item" data-faq>
+          <button class="faq-question" onclick="toggleFaq(this)">
+            <span>Bagaimana cara mengecek status antrian?</span>
+            <span class="faq-arrow"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></span>
+          </button>
+          <div class="faq-answer">
+            <p>Kunjungi halaman <strong>Cek Status</strong>, lalu masukkan kode tracking, nomor HP, atau nama Anda. Halaman ini juga menampilkan daftar semua antrian hari ini secara live.</p>
+          </div>
+        </div>
+        <div class="faq-item" data-faq>
+          <button class="faq-question" onclick="toggleFaq(this)">
+            <span>Apakah saya akan diberi tahu saat nomor saya dipanggil?</span>
+            <span class="faq-arrow"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></span>
+          </button>
+          <div class="faq-answer">
+            <p>Ya! Setelah mengambil antrian, tetap buka halaman tiket Anda. Saat nomor Anda dipanggil oleh petugas, Anda akan mendapat <strong>notifikasi banner</strong>, <strong>suara peringatan</strong>, dan <strong>browser notification</strong> secara otomatis.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tentang Layanan -->
+    <div class="card faq-card">
+      <div class="card-header" style="display:flex;align-items:center;gap:10px;">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg> Tentang Layanan
+      </div>
+      <div class="card-body">
+        <div class="faq-item" data-faq>
+          <button class="faq-question" onclick="toggleFaq(this)">
+            <span>Apa saja jenis layanan yang tersedia?</span>
+            <span class="faq-arrow"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></span>
+          </button>
+          <div class="faq-answer">
+            <p>Saat ini tersedia 4 jenis layanan:</p>
+            <ul style="margin-top:8px;padding-left:20px;color:var(--gray-600);">
+              <li><strong>A - Paket Elektronik</strong> — Gadget dan elektronik</li>
+              <li><strong>B - Paket Dokumen</strong> — Surat dan dokumen penting</li>
+              <li><strong>C - Paket Besar</strong> — Barang berukuran besar</li>
+              <li><strong>D - Paket Regular</strong> — Paket umum</li>
+            </ul>
+          </div>
+        </div>
+        <div class="faq-item" data-faq>
+          <button class="faq-question" onclick="toggleFaq(this)">
+            <span>Berapa lama estimasi waktu tunggu?</span>
+            <span class="faq-arrow"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></span>
+          </button>
+          <div class="faq-answer">
+            <p>Rata-rata waktu tunggu adalah <strong>5-10 menit per antrian</strong>. Estimasi ditampilkan saat Anda mengambil nomor antrian dan diperbarui secara real-time di halaman Cek Status.</p>
+          </div>
+        </div>
+        <div class="faq-item" data-faq>
+          <button class="faq-question" onclick="toggleFaq(this)">
+            <span>Jam operasional layanan?</span>
+            <span class="faq-arrow"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></span>
+          </button>
+          <div class="faq-answer">
+            <p>Layanan antrian tersedia setiap hari kerja:</p>
+            <ul style="margin-top:8px;padding-left:20px;color:var(--gray-600);">
+              <li>Senin - Jumat: <strong>08:00 - 16:00 WIB</strong></li>
+              <li>Sabtu: <strong>08:00 - 12:00 WIB</strong></li>
+              <li>Minggu & Hari Libur: <strong>Tutup</strong></li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Masalah & Solusi -->
+    <div class="card faq-card">
+      <div class="card-header" style="display:flex;align-items:center;gap:10px;">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a1 1 0 000 1.4l1.6 1.6a1 1 0 001.4 0l3.77-3.77a6 6 0 01-7.94 7.94l-6.91 6.91a2.12 2.12 0 01-3-3l6.91-6.91a6 6 0 017.94-7.94l-3.76 3.76z"/></svg> Masalah & Solusi
+      </div>
+      <div class="card-body">
+        <div class="faq-item" data-faq>
+          <button class="faq-question" onclick="toggleFaq(this)">
+            <span>Saya lupa kode tracking, bagaimana cara mengecek?</span>
+            <span class="faq-arrow"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></span>
+          </button>
+          <div class="faq-answer">
+            <p>Anda bisa mencari antrian menggunakan <strong>nomor handphone</strong> atau <strong>nama</strong> Anda di halaman Cek Status. Sistem akan menampilkan semua antrian yang terkait.</p>
+          </div>
+        </div>
+        <div class="faq-item" data-faq>
+          <button class="faq-question" onclick="toggleFaq(this)">
+            <span>Nomor saya dilewati, apa yang harus dilakukan?</span>
+            <span class="faq-arrow"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></span>
+          </button>
+          <div class="faq-answer">
+            <p>Jika nomor antrian Anda dilewati (status: "Dilewati"), silakan menghubungi petugas di loket terdekat. Petugas dapat memanggil ulang nomor Anda atau memberikan nomor antrian baru.</p>
+          </div>
+        </div>
+        <div class="faq-item" data-faq>
+          <button class="faq-question" onclick="toggleFaq(this)">
+            <span>Bisakah saya membatalkan antrian?</span>
+            <span class="faq-arrow"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></span>
+          </button>
+          <div class="faq-answer">
+            <p>Pembatalan antrian hanya bisa dilakukan oleh petugas melalui panel admin. Hubungi petugas jika Anda ingin membatalkan antrian.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Kontak -->
+    <div class="card faq-card">
+      <div class="card-header" style="display:flex;align-items:center;gap:10px;">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07 19.5 19.5 0 01-6-6 19.79 19.79 0 01-3.07-8.67A2 2 0 014.11 2h3a2 2 0 012 1.72 12.84 12.84 0 00.7 2.81 2 2 0 01-.45 2.11L8.09 9.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45 12.84 12.84 0 002.81.7A2 2 0 0122 16.92z"/></svg> Hubungi Kami
+      </div>
+      <div class="card-body">
+        <div class="contact-item">
+          <div class="contact-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg></div>
+          <div>
+            <p class="contact-label">Email</p>
+            <p class="contact-value">support@antrianbarang.com</p>
+          </div>
+        </div>
+        <div class="contact-item">
+          <div class="contact-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="2" width="14" height="20" rx="2" ry="2"/><line x1="12" y1="18" x2="12.01" y2="18"/></svg></div>
+          <div>
+            <p class="contact-label">WhatsApp</p>
+            <p class="contact-value">+62 812-3456-7890</p>
+          </div>
+        </div>
+        <div class="contact-item">
+          <div class="contact-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg></div>
+          <div>
+            <p class="contact-label">Alamat</p>
+            <p class="contact-value">Jl. Logistik No. 42, Jakarta Utara</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CTA -->
+  <div style="text-align:center; margin-top:40px; padding:48px 24px; border-radius:var(--radius-lg); color:var(--white); position:relative; overflow:hidden; background-image: linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.6)), url('https://img.freepik.com/free-photo/man-safety-equipment-work_23-2148949557.jpg'); background-size:cover; background-position:center;">
+    <h2 style="font-size:1.5rem; font-weight:800; margin-bottom:8px; position:relative; z-index:1;">Masih Butuh Bantuan?</h2>
+    <p style="opacity:.9; max-width:400px; margin:0 auto 24px; font-size:.9375rem; position:relative; z-index:1;">Tim kami siap membantu Anda. Jangan ragu untuk menghubungi kami melalui WhatsApp.</p>
+    <a href="https://wa.me/6281234567890" class="btn" style="background:var(--white); color:var(--primary); width:auto; font-weight:700; position:relative; z-index:1;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;margin-right:6px;"><path d="M21 11.5a8.38 8.38 0 01-.9 3.8 8.5 8.5 0 01-7.6 4.7 8.38 8.38 0 01-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 01-.9-3.8 8.5 8.5 0 014.7-7.6 8.38 8.38 0 013.8-.9h.5a8.48 8.48 0 018 8v.5z"/></svg> Chat via WhatsApp</a>
+</div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function toggleFaq(btn) {
+  const item = btn.closest('.faq-item');
+  const wasOpen = item.classList.contains('open');
+  // Close all siblings
+  item.closest('.card-body').querySelectorAll('.faq-item').forEach(i => i.classList.remove('open'));
+  if (!wasOpen) item.classList.add('open');
+}
+
+function filterFAQ(query) {
+  const q = query.toLowerCase();
+  document.querySelectorAll('.faq-item').forEach(item => {
+    const text = item.textContent.toLowerCase();
+    item.style.display = text.includes(q) ? '' : 'none';
+  });
+  document.querySelectorAll('.faq-card').forEach(card => {
+    const visible = card.querySelectorAll('.faq-item[style=""], .faq-item:not([style])');
+    // Show card if any item is visible
+    const hasVisible = Array.from(card.querySelectorAll('.faq-item')).some(i => i.style.display !== 'none');
+    card.style.display = hasVisible ? '' : 'none';
+  });
+}
+</script>
+{% endblock %}

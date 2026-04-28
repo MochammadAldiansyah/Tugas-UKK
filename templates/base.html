@@ -1,0 +1,47 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}AntrianBarang{% endblock %} - Sistem Antrian Logistik</title>
+  <link rel="stylesheet" href="{% static 'css/style.css' %}">
+  {% block extra_css %}{% endblock %}
+</head>
+<body>
+  {% block body %}
+  <!-- Navbar -->
+  <nav class="navbar">
+    <a href="{% url 'antrian:ambil_antrian' %}" class="navbar-brand">
+      Antrian<span>Barang</span>
+    </a>
+    <button class="mobile-menu-btn" onclick="document.querySelector('.navbar-nav').classList.toggle('open');document.querySelector('.navbar-overlay').classList.toggle('open')" aria-label="Menu">
+      <span></span><span></span><span></span>
+    </button>
+    <div class="navbar-overlay" onclick="this.classList.remove('open');document.querySelector('.navbar-nav').classList.remove('open')"></div>
+    <ul class="navbar-nav">
+      <li><a href="{% url 'antrian:ambil_antrian' %}" class="{% if active_page == 'ambil' %}active{% endif %}">Ambil Antrian</a></li>
+      <li><a href="{% url 'antrian:cek_status' %}" class="{% if active_page == 'cek_status' %}active{% endif %}">Cek Status</a></li>
+      <li><a href="{% url 'antrian:bantuan' %}" class="{% if active_page == 'bantuan' %}active{% endif %}">Bantuan</a></li>
+    </ul>
+    <div class="navbar-right">
+      <a href="{% url 'antrian:admin_login' %}" class="btn-admin-login">Admin Login</a>
+    </div>
+  </nav>
+
+  {% block content %}{% endblock %}
+
+  <!-- Footer -->
+  <footer class="footer">
+    <span>&copy; 2026 AntrianBarang Logistics. All rights reserved.</span>
+    <div class="footer-links">
+      <a href="{% url 'antrian:bantuan' %}">Kebijakan Privasi</a>
+      <a href="{% url 'antrian:bantuan' %}">Syarat Layanan</a>
+      <a href="{% url 'antrian:bantuan' %}">Hubungi Kami</a>
+    </div>
+  </footer>
+  {% endblock %}
+
+  {% block extra_js %}{% endblock %}
+</body>
+</html>

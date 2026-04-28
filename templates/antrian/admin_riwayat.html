@@ -1,0 +1,87 @@
+{% extends "antrian/admin_base.html" %}
+{% block admin_title %}Riwayat{% endblock %}
+
+{% block admin_content %}
+<div class="admin-header">
+  <div>
+    <h1>Riwayat Antrian</h1>
+    <p class="date">{{ today|date:"l, d F Y" }}</p>
+  </div>
+  <a href="{% url 'antrian:admin_logout' %}" class="btn btn-outline btn-sm">Logout</a>
+</div>
+
+<!-- Filter -->
+<div class="card" style="margin-bottom:24px;">
+  <div class="card-body" style="padding:16px 24px;">
+    <form method="get" style="display:flex;gap:12px;align-items:end;flex-wrap:wrap;">
+      <div class="form-group" style="margin-bottom:0;flex:1;min-width:200px;">
+        <label class="form-label">Tanggal</label>
+        <input type="date" name="date" class="form-input" value="{{ filter_date }}">
+      </div>
+      <div class="form-group" style="margin-bottom:0;flex:1;min-width:200px;">
+        <label class="form-label">Status</label>
+        <select name="status" class="form-select">
+          <option value="">Semua Status</option>
+          <option value="waiting" {% if filter_status == 'waiting' %}selected{% endif %}>Menunggu</option>
+          <option value="called" {% if filter_status == 'called' %}selected{% endif %}>Dipanggil</option>
+          <option value="serving" {% if filter_status == 'serving' %}selected{% endif %}>Sedang Dilayani</option>
+          <option value="done" {% if filter_status == 'done' %}selected{% endif %}>Selesai</option>
+          <option value="skipped" {% if filter_status == 'skipped' %}selected{% endif %}>Dilewati</option>
+          <option value="cancelled" {% if filter_status == 'cancelled' %}selected{% endif %}>Dibatalkan</option>
+        </select>
+      </div>
+      <button type="submit" class="btn btn-primary" style="width:auto;height:46px;">Filter</button>
+    </form>
+  </div>
+</div>
+
+<!-- Stats -->
+<div class="stats-grid">
+  <div class="stat-card">
+    <div class="stat-label">Total</div>
+    <div class="stat-value">{{ total }}</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-label">Selesai</div>
+    <div class="stat-value" style="color:var(--green-500);">{{ done }}</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-label">Dilewati</div>
+    <div class="stat-value" style="color:var(--amber-500);">{{ skipped }}</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-label">Dibatalkan</div>
+    <div class="stat-value" style="color:var(--red-500);">{{ cancelled }}</div>
+  </div>
+</div>
+
+<!-- Table -->
+<div class="table-container">
+  <div class="table-header">
+    <h3>Data Antrian</h3>
+  </div>
+  <table>
+    <thead>
+      <tr><th>No.</th><th>Kode</th><th>Nama</th><th>HP</th><th>Layanan</th><th>Loket</th><th>Daftar</th><th>Dipanggil</th><th>Selesai</th><th>Status</th></tr>
+    </thead>
+    <tbody>
+      {% for t in tickets %}
+      <tr>
+        <td><strong>{{ t.ticket_number }}</strong></td>
+        <td style="font-family:monospace;font-size:.8125rem;">{{ t.tracking_code }}</td>
+        <td>{{ t.customer_name }}</td>
+        <td style="font-size:.8125rem;">{{ t.customer_phone }}</td>
+        <td>{{ t.service_type }}</td>
+        <td>{{ t.counter|default:"-" }}</td>
+        <td>{{ t.created_at|date:"H:i" }}</td>
+        <td>{% if t.called_at %}{{ t.called_at|date:"H:i" }}{% else %}-{% endif %}</td>
+        <td>{% if t.completed_at %}{{ t.completed_at|date:"H:i" }}{% else %}-{% endif %}</td>
+        <td><span class="badge badge-{{ t.status }}">{{ t.get_status_display }}</span></td>
+      </tr>
+      {% empty %}
+      <tr><td colspan="10" style="text-align:center;padding:32px;color:var(--gray-400);">Tidak ada data</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

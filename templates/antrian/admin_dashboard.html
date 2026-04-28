@@ -1,0 +1,138 @@
+{% extends "antrian/admin_base.html" %}
+{% block admin_title %}Dashboard{% endblock %}
+
+{% block admin_content %}
+<div class="admin-header">
+  <div>
+    <h1>Ringkasan Hari Ini</h1>
+    <p class="date">{{ today|date:"l, d F Y" }}</p>
+  </div>
+  <div style="display:flex;gap:12px;align-items:center;">
+   
+    <a href="{% url 'antrian:admin_logout' %}" class="btn btn-outline btn-sm">Logout</a>
+  </div>
+</div>
+
+<!-- Messages -->
+{% if messages %}
+<div style="margin-bottom:16px;">
+  {% for msg in messages %}
+  <div class="{% if msg.tags == 'success' %}alert-success{% elif msg.tags == 'error' %}alert-error{% else %}alert-info{% endif %}" style="padding:10px 16px;border-radius:var(--radius-sm);margin-bottom:8px;font-size:.875rem;font-weight:500;">
+    {{ msg }}
+  </div>
+  {% endfor %}
+</div>
+{% endif %}
+
+<!-- Stats -->
+<div class="stats-grid">
+  <div class="stat-card">
+    <div class="stat-label">Total Antrian</div>
+    <div class="stat-value">{{ total_antrian }}</div>
+    <div class="stat-change">Tiket</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-label">Antrian Selesai</div>
+    <div class="stat-value">{{ antrian_selesai }}</div>
+    <div class="stat-change" style="color:var(--green-500);">Selesai</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-label">Rata-Rata Layanan</div>
+    <div class="stat-value">{{ avg_service_time }}</div>
+    <div class="stat-change">Menit</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-label">Sedang Melayani</div>
+    <div class="stat-value" style="color:var(--primary);">
+      {% if current_serving %}{{ current_serving.ticket_number }}{% else %}-{% endif %}
+    </div>
+    <div class="stat-change">Sekarang</div>
+  </div>
+</div>
+
+<!-- Call Section -->
+<div class="call-section">
+  <h3>Panggil Antrian</h3>
+  {% if current_serving %}
+  <div class="call-current">
+    <div class="call-icon"><svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg></div>
+    <div class="call-info">
+      <p style="font-size:.8125rem;color:var(--gray-400);">Sedang memanggil:</p>
+      <div class="ticket-num">PANGGIL: {{ current_serving.ticket_number }}</div>
+      <p style="font-size:.875rem;color:var(--gray-600);margin-top:4px;">{{ current_serving.customer_name }} &bull; {{ current_serving.counter|default:"Loket 01" }}</p>
+    </div>
+  </div>
+  <div class="call-actions" style="margin-top:16px;">
+    <form method="post" action="{% url 'antrian:update_ticket_status' current_serving.id %}" style="display:inline;">{% csrf_token %}
+      <input type="hidden" name="status" value="serving">
+      <button type="submit" class="btn btn-primary btn-sm" style="width:auto;"><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" stroke="none" style="vertical-align:middle;margin-right:4px;"><polygon points="5 3 19 12 5 21 5 3"/></svg> Mulai Layani</button>
+    </form>
+    <form method="post" action="{% url 'antrian:update_ticket_status' current_serving.id %}" style="display:inline;">{% csrf_token %}
+      <input type="hidden" name="status" value="done">
+      <button type="submit" class="btn btn-outline btn-sm" style="width:auto;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--green-500)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;margin-right:4px;"><polyline points="20 6 9 17 4 12"/></svg> Selesai</button>
+    </form>
+    <form method="post" action="{% url 'antrian:update_ticket_status' current_serving.id %}" style="display:inline;">{% csrf_token %}
+      <input type="hidden" name="status" value="skipped">
+      <button type="submit" class="btn btn-outline btn-sm" style="width:auto;color:var(--amber-500);border-color:var(--amber-500);"><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" stroke="none" style="vertical-align:middle;margin-right:4px;"><polygon points="5 4 15 12 5 20 5 4"/><line x1="19" y1="5" x2="19" y2="19" stroke="currentColor" stroke-width="2"/></svg> Lewati</button>
+    </form>
+    <form method="post" action="{% url 'antrian:update_ticket_status' current_serving.id %}" style="display:inline;">{% csrf_token %}
+      <input type="hidden" name="status" value="cancelled">
+      <button type="submit" class="btn btn-outline btn-sm" style="width:auto;color:var(--red-500);border-color:var(--red-500);"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;margin-right:4px;"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg> Batal</button>
+    </form>
+    <form method="post" action="{% url 'antrian:call_next' %}" style="display:inline;">{% csrf_token %}
+      <button type="submit" class="btn btn-primary btn-sm" style="width:auto;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;margin-right:4px;"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg> Panggil Berikutnya</button>
+    </form>
+  </div>
+  {% else %}
+  <form method="post" action="{% url 'antrian:call_next' %}">{% csrf_token %}
+    <button type="submit" class="btn btn-primary" style="max-width:300px;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;margin-right:4px;"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg> Panggil Berikutnya</button>
+  </form>
+  <p style="font-size:.8125rem;color:var(--gray-400);margin-top:8px;">{{ antrian_waiting }} antrian menunggu</p>
+  {% endif %}
+</div>
+
+<!-- Queue Table -->
+<div class="table-container">
+  <div class="table-header">
+    <h3>Semua Antrian Hari Ini</h3>
+    <span style="font-size:.8125rem;color:var(--gray-400);">{{ total_antrian }} Antrian</span>
+  </div>
+  <table>
+    <thead>
+      <tr><th>No.</th><th>Nama</th><th>Layanan</th><th>Waktu</th><th>Status</th><th>Aksi</th></tr>
+    </thead>
+    <tbody>
+      {% for ticket in all_tickets %}
+      <tr class="{% if ticket.status == 'called' %}row-called{% endif %}">
+        <td><strong>{{ ticket.ticket_number }}</strong></td>
+        <td>{{ ticket.customer_name }}</td>
+        <td>{{ ticket.service_type }}</td>
+        <td>{{ ticket.created_at|date:"H:i" }}</td>
+        <td><span class="badge badge-{{ ticket.status }}">{{ ticket.get_status_display }}</span></td>
+        <td>
+          {% if ticket.status == 'waiting' %}
+          <form method="post" action="{% url 'antrian:call_next' %}" style="display:inline;">{% csrf_token %}
+            <button type="submit" class="btn btn-sm btn-primary" style="width:auto;">Panggil</button>
+          </form>
+          {% elif ticket.status == 'called' %}
+          <form method="post" action="{% url 'antrian:update_ticket_status' ticket.id %}" style="display:inline;">{% csrf_token %}
+            <input type="hidden" name="status" value="done">
+            <button type="submit" class="btn btn-sm btn-success" style="width:auto;">Selesai</button>
+          </form>
+          {% elif ticket.status == 'serving' %}
+          <form method="post" action="{% url 'antrian:update_ticket_status' ticket.id %}" style="display:inline;">{% csrf_token %}
+            <input type="hidden" name="status" value="done">
+            <button type="submit" class="btn btn-sm btn-success" style="width:auto;">Selesai</button>
+          </form>
+          {% else %}
+          <span style="color:var(--gray-400);font-size:.8125rem;">-</span>
+          {% endif %}
+        </td>
+      </tr>
+      {% empty %}
+      <tr><td colspan="6" style="text-align:center;padding:32px;color:var(--gray-400);">Belum ada antrian hari ini</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}
