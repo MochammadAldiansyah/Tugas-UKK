@@ -82,16 +82,31 @@ WSGI_APPLICATION = 'antrianbarang.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
 
+# Database
+# https://docs.djangoproject.com/en/5.2/ref/settings/#databases
+
+# Cek apakah ada DATABASE_URL (dari Neon/Vercel)
 if os.environ.get('DATABASE_URL'):
-    # Production: Use PostgreSQL from environment
     DATABASES = {
         'default': dj_database_url.config(
+            default=os.environ.get('DATABASE_URL'),
             conn_max_age=600,
             conn_health_checks=True,
+            ssl_require=True, # Neon wajib pakai SSL
+        )
+    }
+# Cek apakah ada POSTGRES_URL (cadangan)
+elif os.environ.get('POSTGRES_URL'):
+    DATABASES = {
+        'default': dj_database_url.config(
+            default=os.environ.get('POSTGRES_URL'),
+            conn_max_age=600,
+            conn_health_checks=True,
+            ssl_require=True,
         )
     }
 else:
-    # Development: Use SQLite
+    # Lokal/Development
     DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.sqlite3',
