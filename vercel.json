@@ -3,7 +3,8 @@
   "builds": [
     {
       "src": "antrianbarang/wsgi.py",
-      "use": "@vercel/python"
+      "use": "@vercel/python",
+      "config": { "maxLambdaSize": "15mb", "runtime": "python3.11" }
     }
   ],
   "routes": [
@@ -11,5 +12,6 @@
       "src": "/(.*)",
       "dest": "antrianbarang/wsgi.py"
     }
-  ]
+  ],
+  "installCommand": "pip install -r requirements.txt"
 }
