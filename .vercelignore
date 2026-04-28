@@ -1,0 +1,16 @@
+.git
+.gitignore
+__pycache__
+*.pyc
+*.pyo
+*.egg-info/
+.env
+.env.local
+.venv
+venv/
+env/
+*.sqlite3
+.DS_Store
+.vscode/
+.idea/
+node_modules/
