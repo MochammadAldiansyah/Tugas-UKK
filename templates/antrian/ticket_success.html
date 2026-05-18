@@ -1,189 +1,61 @@
 {% extends "base.html" %}
+{% load static %}
 {% block title %}Antrian Berhasil{% endblock %}
 
 {% block content %}
-<div class="page-container success-page">
-  <!-- Notification Permission Banner -->
-  <div id="notifPermBanner" style="display:none;background:linear-gradient(90deg,#1e3a8a,#1d4ed8);color:#fff;padding:12px 20px;border-radius:var(--radius-md);margin-bottom:16px;display:flex;align-items:center;gap:12px;justify-content:space-between;flex-wrap:wrap;">
-    <div style="display:flex;align-items:center;gap:10px;">
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg>
-      <span style="font-size:.875rem;">Aktifkan notifikasi agar kami bisa memberitahu Anda saat giliran Anda tiba.</span>
-    </div>
-    <button onclick="requestNotifPermission()" style="background:rgba(255,255,255,.2);border:1px solid rgba(255,255,255,.4);color:#fff;padding:6px 16px;border-radius:var(--radius-sm);font-size:.8125rem;cursor:pointer;white-space:nowrap;">Aktifkan Notifikasi</button>
+<div class="ticket-success">
+  <div id="notifPermBanner" class="notif-perm-banner is-hidden">
+    <p class="text-sm font-semibold">Aktifkan notifikasi agar kami bisa memberitahu Anda saat giliran Anda tiba.</p>
+    <button type="button" onclick="requestNotifPermission()" class="btn-brutal btn-brutal--white btn-brutal--sm">Aktifkan</button>
   </div>
 
-  <!-- Alert Banner (shown when ticket is called) -->
-  <div id="callNotification" class="notification-banner" style="display:none;">
-    <div class="notification-icon"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg></div>
-    <div class="notification-content">
-      <strong id="notifTitle">Nomor Anda Dipanggil!</strong>
-      <p id="notifMessage">Silakan menuju loket.</p>
+  <div id="callNotification" class="call-notification is-hidden">
+    <div class="flex h-12 w-12 shrink-0 items-center justify-center border-2 border-black bg-white">
+      <svg class="h-6 w-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg>
+    </div>
+    <div class="min-w-0 flex-1">
+      <p id="notifTitle" class="text-sm font-black uppercase">Nomor Anda Dipanggil!</p>
+      <p id="notifMessage" class="mt-1 text-sm font-medium">Silakan menuju loket.</p>
     </div>
   </div>
 
-  <div class="success-icon"><svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="var(--green-500)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg></div>
-  <h1 style="font-size:1.75rem;font-weight:800;margin-bottom:8px;">Antrian Berhasil Diambil!</h1>
-  <p style="color:var(--gray-500);margin-bottom:24px;">Simpan nomor antrian dan kode tracking Anda</p>
+  <div class="mx-auto mb-4 flex h-16 w-16 items-center justify-center border-4 border-black bg-brand-green shadow-brutal-sm">
+    <svg class="h-8 w-8" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+  </div>
+  <h1 class="text-2xl font-black uppercase sm:text-3xl">Antrian Berhasil Diambil!</h1>
+  <p class="mt-2 text-sm font-medium text-neutral-600">Simpan nomor antrian dan kode tracking Anda</p>
 
   <div class="ticket-display">
-    <div class="number">{{ ticket.ticket_number }}</div>
-    <div class="tracking">Kode: {{ ticket.tracking_code }}</div>
-    <div style="margin-top:16px;padding-top:16px;border-top:1px solid var(--primary-200);">
-      <p style="font-size:.875rem;color:var(--gray-600);"><strong>{{ ticket.customer_name }}</strong></p>
-      <p style="font-size:.8125rem;color:var(--gray-400);">{{ ticket.service_type }}</p>
+    <p class="ticket-display__number">{{ ticket.ticket_number }}</p>
+    <p class="ticket-display__tracking">Kode: {{ ticket.tracking_code }}</p>
+    <div class="ticket-display__meta">
+      <p class="text-sm font-bold">{{ ticket.customer_name }}</p>
+      <p class="text-xs font-semibold text-neutral-600">{{ ticket.service_type }}</p>
     </div>
     {% if position > 0 %}
-    <div style="margin-top:12px;padding:8px;background:var(--white);border-radius:var(--radius-sm);">
-      <p style="font-size:.75rem;color:var(--gray-400);text-transform:uppercase;letter-spacing:.5px;">Posisi Antrian Anda</p>
-      <p style="font-size:1.5rem;font-weight:800;color:var(--primary);" id="positionDisplay">{{ position }}</p>
+    <div class="ticket-position-box">
+      <p class="text-[10px] font-black uppercase text-neutral-500">Posisi Antrian Anda</p>
+      <p class="text-3xl font-black text-brand-blue" id="positionDisplay">{{ position }}</p>
     </div>
     {% endif %}
   </div>
 
-  <div id="statusBadge" style="margin-top:12px;">
-    <span class="badge badge-{{ ticket.status }}" style="font-size:.875rem;padding:8px 20px;">{{ ticket.get_status_display }}</span>
+  <div id="statusBadge" class="mt-4">
+    {% include "includes/status_badge.html" with status=ticket.status label=ticket.get_status_display %}
   </div>
 
-  <div style="display:flex;gap:12px;justify-content:center;margin-top:24px;">
-    <a href="{% url 'antrian:cek_status' %}?query={{ ticket.tracking_code }}" class="btn btn-outline" style="width:auto;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;margin-right:4px;"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg> Cek Status</a>
-    <a href="{% url 'antrian:ambil_antrian' %}" class="btn btn-primary" style="width:auto;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;margin-right:4px;"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg> Kembali</a>
+  <div class="mt-6 flex flex-wrap justify-center gap-3">
+    <a href="{% url 'antrian:cek_status' %}?query={{ ticket.tracking_code }}" class="btn-brutal btn-brutal--outline">Cek Status</a>
+    <a href="{% url 'antrian:ambil_antrian' %}" class="btn-brutal btn-brutal--yellow">Kembali</a>
   </div>
-
-  <p style="font-size:.75rem;color:var(--gray-400);margin-top:24px;">Halaman ini otomatis memperbarui status antrian Anda</p>
+  <p class="mt-6 text-xs font-medium text-neutral-500">Halaman ini otomatis memperbarui status antrian Anda</p>
 </div>
 {% endblock %}
 
 {% block extra_js %}
 <script>
-const trackingCode = '{{ ticket.tracking_code }}';
-let lastStatus = '{{ ticket.status }}';
-let pollingActive = true;
-
-// ============ NOTIFIKASI BROWSER ============
-function requestNotifPermission() {
-  if (!('Notification' in window)) {
-    alert('Browser Anda tidak mendukung notifikasi.');
-    return;
-  }
-  Notification.requestPermission().then(permission => {
-    const banner = document.getElementById('notifPermBanner');
-    if (permission === 'granted') {
-      if (banner) banner.style.display = 'none';
-      // Kirim notifikasi test sebagai konfirmasi
-      new Notification('AntrianBarang', {
-        body: 'Notifikasi aktif! Anda akan diberitahu saat giliran tiba.',
-        icon: '/static/img/favicon.png',
-      });
-    } else {
-      if (banner) banner.querySelector('span').textContent = 'Izin notifikasi ditolak. Anda perlu mengizinkan notifikasi secara manual di pengaturan browser.';
-    }
-  });
-}
-
-function sendBrowserNotification(title, body) {
-  if ('Notification' in window && Notification.permission === 'granted') {
-    const notif = new Notification(title, {
-      body: body,
-      icon: '/static/img/favicon.png',
-      badge: '/static/img/favicon.png',
-      requireInteraction: true, // Notifikasi tidak hilang otomatis
-    });
-    // Auto-close setelah 15 detik
-    setTimeout(() => notif.close(), 15000);
-    return notif;
-  }
-  return null;
-}
-
-// Tampilkan banner izin jika belum diizinkan
-window.addEventListener('DOMContentLoaded', () => {
-  const banner = document.getElementById('notifPermBanner');
-  if ('Notification' in window && Notification.permission === 'default' && banner) {
-    banner.style.display = 'flex';
-  } else if (banner) {
-    banner.style.display = 'none';
-  }
-});
-
-// ============ POLLING STATUS ============
-function checkTicket() {
-  if (!pollingActive) return;
-
-  fetch('/api/check-ticket/' + trackingCode + '/')
-    .then(r => r.json())
-    .then(data => {
-      // Update posisi antrian
-      const posEl = document.getElementById('positionDisplay');
-      if (posEl) {
-        posEl.textContent = data.position > 0 ? data.position : (data.status === 'called' ? '🔔' : '-');
-      }
-
-      // Update badge status
-      const badgeEl = document.getElementById('statusBadge');
-      if (badgeEl) {
-        badgeEl.innerHTML = '<span class="badge badge-' + data.status + '" style="font-size:.875rem;padding:8px 20px;">' + data.status_display + '</span>';
-      }
-
-      // ===== EVENT: ANTRIAN DIPANGGIL =====
-      if (data.status === 'called' && lastStatus !== 'called') {
-        showCallAlert(data);
-
-        // Browser Push Notification (OS Level)
-        sendBrowserNotification(
-          'Antrian Anda Dipanggil! 🔔',
-          'Antrian ' + data.ticket_number + ' Dipanggil! Silahkan menuju ' + data.counter
-        );
-
-        // Bunyi beep peringatan
-        playBeepAlert();
-      }
-
-      // ===== EVENT: ANTRIAN SELESAI =====
-      if ((data.status === 'done' || data.status === 'cancelled') && lastStatus !== data.status) {
-        // Hentikan polling jika sudah selesai
-        if (data.status === 'done') {
-          pollingActive = false;
-          sendBrowserNotification(
-            'Antrian Selesai ✅',
-            'Terima kasih! Layanan Anda telah selesai. Sampai jumpa!'
-          );
-        }
-      }
-
-      lastStatus = data.status;
-    })
-    .catch(() => {});
-}
-
-function showCallAlert(data) {
-  const el = document.getElementById('callNotification');
-  document.getElementById('notifTitle').textContent = 'Nomor ' + data.ticket_number + ' Dipanggil!';
-  document.getElementById('notifMessage').textContent = 'Silahkan menuju ' + data.counter;
-  el.style.display = 'flex';
-  // Scroll ke atas agar banner terlihat
-  window.scrollTo({ top: 0, behavior: 'smooth' });
-}
-
-function playBeepAlert() {
-  try {
-    const ctx = new (window.AudioContext || window.webkitAudioContext)();
-    [880, 1100, 880, 1100].forEach((freq, i) => {
-      setTimeout(() => {
-        const osc = ctx.createOscillator();
-        const gain = ctx.createGain();
-        osc.type = 'sine';
-        osc.frequency.value = freq;
-        gain.gain.value = 0.4;
-        osc.connect(gain);
-        gain.connect(ctx.destination);
-        osc.start();
-        setTimeout(() => osc.stop(), 220);
-      }, i * 320);
-    });
-  } catch(e) {}
-}
-
-// Polling setiap 5 detik
-setInterval(checkTicket, 5000);
+  document.body.dataset.trackingCode = '{{ ticket.tracking_code }}';
+  document.body.dataset.initialStatus = '{{ ticket.status }}';
 </script>
+<script src="{% static 'js/ticket-success.js' %}"></script>
 {% endblock %}

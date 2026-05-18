@@ -1,220 +1,192 @@
 {% extends "base.html" %}
+{% load static %}
 {% block title %}Cek Status Antrian{% endblock %}
 
 {% block content %}
-<div class="page-container">
-  <div class="page-header">
-    <h1>Pantau Pesanan Anda</h1>
-    <p>Masukkan kode unik atau nomor handphone Anda untuk melihat status antrian secara real-time.</p>
-  </div>
-
-  <!-- Notification Banner (hidden, shown via JS when ticket is called) -->
-  <div id="callNotification" class="notification-banner" style="display:none;">
-    <div class="notification-icon"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg></div>
-    <div class="notification-content">
-      <strong id="notifTitle">Nomor Anda Dipanggil!</strong>
-      <p id="notifMessage">Silakan menuju loket.</p>
-    </div>
-    <button onclick="this.parentElement.style.display='none'" class="notification-close">&times;</button>
-  </div>
-
-  <!-- Currently Called -->
-  {% if current_called %}
-  <div class="current-call-banner">
-    <div class="current-call-icon"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg></div>
-    <div>
-      <p style="font-size:.75rem;color:var(--primary);font-weight:600;text-transform:uppercase;letter-spacing:.5px;">Sedang Dipanggil</p>
-      <p style="font-size:1.5rem;font-weight:800;color:var(--gray-900);">{{ current_called.ticket_number }}</p>
-      <p style="font-size:.8125rem;color:var(--gray-500);">{{ current_called.customer_name }} &bull; {{ current_called.counter|default:"Loket 01" }}</p>
-    </div>
-  </div>
-  {% endif %}
-
-  <!-- Search -->
-  <form method="get" class="search-bar">
-    <input type="text" name="query" class="form-input" placeholder="Cari: kode tracking, nama, no HP, atau nomor antrian..." value="{{ query }}">
-    <button type="submit" class="btn btn-primary" style="width:auto;">CARI</button>
+<section class="mb-8 text-center sm:mb-10">
+  <h1 class="text-3xl font-black uppercase leading-tight tracking-tight sm:text-4xl lg:text-5xl">Pantau Pesanan Anda</h1>
+  <p class="mx-auto mt-3 max-w-2xl text-sm font-medium text-neutral-700 sm:text-base">
+    Masukkan kode tracking, nomor HP, atau nama untuk melihat status antrian secara real-time.
+  </p>
+  <form method="get" class="mx-auto mt-6 flex max-w-3xl flex-col gap-3 sm:mt-8 sm:flex-row">
+    <input type="text" name="query" value="{{ query }}" placeholder="Cari: kode tracking, nama, no HP, atau nomor antrian..." class="min-h-[52px] flex-1 border-4 border-black bg-white px-4 text-sm font-medium placeholder:text-neutral-400 focus:outline-none sm:text-base">
+    <button type="submit" class="min-h-[52px] border-4 border-black bg-brand-blue px-8 text-sm font-black uppercase tracking-wide text-white shadow-brutal transition hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-none sm:min-w-[120px] sm:text-base">Cari</button>
   </form>
+</section>
 
-  <!-- Search Results -->
-  {% if results is not None %}
-    {% if results %}
-      <h3 style="font-size:.875rem;font-weight:700;color:var(--gray-500);text-transform:uppercase;margin-bottom:12px;">Hasil Pencarian ({{ results|length }})</h3>
-      {% for ticket in results %}
-      <div class="ticket-result {% if ticket.status == 'called' %}ticket-called{% endif %}">
-        <div class="ticket-result-header">
-          <div>
-            <span class="ticket-number-big">{{ ticket.ticket_number }}</span>
-            <span style="margin-left:8px;font-size:.8125rem;color:var(--gray-400);">{{ ticket.tracking_code }}</span>
-            <span style="margin-left:8px;font-size:.875rem;color:var(--gray-600);">{{ ticket.customer_name }}</span>
+<div id="callNotification" class="call-notification is-hidden mb-6">
+  <div class="flex h-12 w-12 shrink-0 items-center justify-center border-2 border-black bg-white">
+    <svg class="h-6 w-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg>
+  </div>
+  <div class="min-w-0 flex-1">
+    <p id="notifTitle" class="text-sm font-black uppercase sm:text-base">Nomor Anda Dipanggil!</p>
+    <p id="notifMessage" class="mt-1 text-sm font-medium">Silakan menuju loket.</p>
+  </div>
+  <button type="button" onclick="document.getElementById('callNotification').classList.add('hidden')" class="text-2xl font-black leading-none" aria-label="Tutup">&times;</button>
+</div>
+
+{% if current_called %}
+<section class="mb-8 border-4 border-black bg-white p-4 shadow-brutal sm:mb-10 sm:p-6">
+  <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:gap-6">
+    <div class="flex h-20 w-20 shrink-0 items-center justify-center border-4 border-black bg-brand-yellow shadow-brutal-sm sm:h-24 sm:w-24">
+      <span class="text-xl font-black sm:text-2xl">{{ current_called.ticket_number }}</span>
+    </div>
+    <div class="min-w-0 flex-1">
+      <p class="text-xs font-bold uppercase tracking-widest text-brand-blue">Sedang Dipanggil</p>
+      <p class="mt-1 text-lg font-black uppercase sm:text-xl">Pesanan Sedang Diproses</p>
+      <p class="mt-1 truncate text-sm font-semibold text-neutral-700">{{ current_called.customer_name }} &bull; {{ current_called.counter|default:"Loket 01" }}</p>
+    </div>
+    <span class="inline-flex w-fit shrink-0 border-2 border-black bg-brand-blue px-4 py-2 text-xs font-black uppercase text-white shadow-brutal-sm">Diproses</span>
+  </div>
+  <div class="mt-4 flex flex-wrap gap-4 border-t-2 border-black pt-4 text-xs font-bold uppercase sm:text-sm">
+    <span>Tracking: {{ current_called.tracking_code }}</span>
+    <span>Layanan: {{ current_called.service_type }}</span>
+    {% if current_called.called_at %}<span>Dipanggil: {{ current_called.called_at|date:"H:i" }} WIB</span>{% endif %}
+  </div>
+</section>
+{% endif %}
+
+{% if results is not None %}
+<section class="mb-8 sm:mb-10">
+  {% if results %}
+  <h2 class="mb-4 text-sm font-black uppercase tracking-wide text-neutral-600">Hasil Pencarian ({{ results|length }})</h2>
+  <div class="space-y-4">
+    {% for ticket in results %}
+    <article class="border-4 border-black bg-white p-4 shadow-brutal sm:p-5 {% if ticket.status == 'called' or ticket.status == 'serving' %}ring-4 ring-brand-blue ring-offset-2{% endif %}">
+      <div class="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+        <div class="min-w-0">
+          <div class="flex flex-wrap items-center gap-2">
+            <span class="text-2xl font-black">{{ ticket.ticket_number }}</span>
+            <span class="font-mono text-xs font-semibold text-neutral-500">{{ ticket.tracking_code }}</span>
           </div>
-          <span class="badge badge-{{ ticket.status }}">{{ ticket.get_status_display }}</span>
+          <p class="mt-1 text-sm font-bold">{{ ticket.customer_name }}</p>
         </div>
-        <div class="ticket-meta">
-          <div class="ticket-meta-item"><label>LAYANAN</label><span>{{ ticket.service_type }}</span></div>
-          <div class="ticket-meta-item"><label>LOKET</label><span>{{ ticket.counter|default:"Menunggu" }}</span></div>
-          <div class="ticket-meta-item"><label>WAKTU MASUK</label><span>{{ ticket.created_at|date:"H:i" }} WIB</span></div>
-        </div>
+        {% include "includes/status_badge.html" with status=ticket.status label=ticket.get_status_display %}
       </div>
-      {% endfor %}
-    {% else %}
-      <div class="card"><div class="card-body" style="text-align:center;padding:32px;">
-        <p style="color:var(--gray-500);">Tidak ditemukan antrian dengan "<strong>{{ query }}</strong>"</p>
-      </div></div>
-    {% endif %}
+      <dl class="mt-4 grid grid-cols-2 gap-3 border-t-2 border-black pt-4 sm:grid-cols-3">
+        <div><dt class="text-[10px] font-black uppercase text-neutral-500">Layanan</dt><dd class="text-sm font-bold">{{ ticket.service_type }}</dd></div>
+        <div><dt class="text-[10px] font-black uppercase text-neutral-500">Loket</dt><dd class="text-sm font-bold">{{ ticket.counter|default:"Menunggu" }}</dd></div>
+        <div><dt class="text-[10px] font-black uppercase text-neutral-500">Waktu Masuk</dt><dd class="text-sm font-bold">{{ ticket.created_at|date:"H:i" }} WIB</dd></div>
+      </dl>
+    </article>
+    {% endfor %}
+  </div>
+  {% else %}
+  <div class="border-4 border-black bg-white p-8 text-center shadow-brutal">
+    <p class="text-sm font-semibold text-neutral-600">Tidak ditemukan antrian dengan "<strong class="text-black">{{ query }}</strong>"</p>
+  </div>
   {% endif %}
+</section>
+{% endif %}
 
-  <!-- Mini Stats -->
-  <div class="stats-grid" style="margin-top:24px;">
-    <div class="stat-card">
-      <div class="stat-label">Total Hari Ini</div>
-      <div class="stat-value">{{ total_today }}</div>
+<div class="grid grid-cols-1 gap-6 lg:grid-cols-12 lg:gap-8">
+  <div class="space-y-6 lg:col-span-8">
+    <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+      <div class="border-4 border-black bg-brand-yellow p-5 shadow-brutal sm:p-6">
+        <p class="text-xs font-black uppercase tracking-wide">Total Antrian</p>
+        <p class="mt-2 text-4xl font-black sm:text-5xl">{{ total_today }}</p>
+        <p class="mt-2 text-xs font-semibold uppercase">Hari ini</p>
+      </div>
+      <div class="border-4 border-black bg-brand-purple p-5 shadow-brutal sm:p-6">
+        <p class="text-xs font-black uppercase tracking-wide">Estimasi Waktu Tunggu</p>
+        <p class="mt-2 text-4xl font-black sm:text-5xl">{% widthratio waiting_count 1 5 %}<span class="text-2xl sm:text-3xl"> mnt</span></p>
+        <p class="mt-2 text-xs font-semibold uppercase">{{ waiting_count }} antrian menunggu</p>
+      </div>
     </div>
-    <div class="stat-card">
-      <div class="stat-label">Menunggu</div>
-      <div class="stat-value" style="color:var(--amber-500);">{{ waiting_count }}</div>
+    <div class="grid grid-cols-3 gap-3">
+      <div class="border-2 border-black bg-white p-3 text-center shadow-brutal-sm sm:p-4"><p class="text-[10px] font-black uppercase text-neutral-500">Menunggu</p><p class="text-xl font-black text-amber-600 sm:text-2xl">{{ waiting_count }}</p></div>
+      <div class="border-2 border-black bg-white p-3 text-center shadow-brutal-sm sm:p-4"><p class="text-[10px] font-black uppercase text-neutral-500">Diproses</p><p class="text-xl font-black text-brand-blue sm:text-2xl">{% if current_called %}1{% else %}0{% endif %}</p></div>
+      <div class="border-2 border-black bg-white p-3 text-center shadow-brutal-sm sm:p-4"><p class="text-[10px] font-black uppercase text-neutral-500">Selesai</p><p class="text-xl font-black text-emerald-600 sm:text-2xl">{{ done_count }}</p></div>
     </div>
-    <div class="stat-card">
-      <div class="stat-label">Selesai</div>
-      <div class="stat-value" style="color:var(--green-500);">{{ done_count }}</div>
-    </div>
-  </div>
-
-  <!-- Live Queue Table -->
-  <div class="table-container" style="margin-top:16px;">
-    <div class="table-header">
-      <h3>Daftar Antrian Hari Ini</h3>
-      <span style="font-size:.75rem;color:var(--gray-400);" id="liveIndicator">● Live</span>
-    </div>
-    <table>
-      <thead>
-        <tr>
-          <th>No. Antrian</th>
-          <th>Kode Tracking</th>
-          <th>Nama</th>
-          <th>Layanan</th>
-          <th>Waktu</th>
-          <th>Status</th>
-        </tr>
-      </thead>
-      <tbody id="queueTableBody">
-        {% for ticket in today_queue %}
-        <tr class="{% if ticket.status == 'called' %}row-called{% endif %}">
-          <td><strong>{{ ticket.ticket_number }}</strong></td>
-          <td style="font-family:monospace;color:var(--gray-500);">{{ ticket.tracking_code }}</td>
-          <td>{{ ticket.customer_name }}</td>
-          <td>{{ ticket.service_type }}</td>
-          <td>{{ ticket.created_at|date:"H:i" }}</td>
-          <td><span class="badge badge-{{ ticket.status }}">{{ ticket.get_status_display }}</span></td>
-        </tr>
-        {% empty %}
-        <tr><td colspan="6" style="text-align:center;padding:24px;color:var(--gray-400);">Belum ada antrian hari ini</td></tr>
-        {% endfor %}
-      </tbody>
-    </table>
-  </div>
-
-  <!-- Aktivitas Terakhir -->
-  {% if recent_activities %}
-  <div class="card" style="margin-top:24px;">
-    <div class="card-header">Aktivitas Terakhir</div>
-    <div class="card-body">
-      <ul class="activity-list">
+    <section class="border-4 border-black bg-white shadow-brutal">
+      <div class="flex flex-wrap items-center justify-between gap-2 border-b-4 border-black px-4 py-3 sm:px-5">
+        <h2 class="text-sm font-black uppercase sm:text-base">Daftar Antrian Hari Ini</h2>
+        <span id="liveIndicator" class="flex items-center gap-1.5 text-xs font-bold uppercase text-neutral-500"><span class="h-2 w-2 rounded-full bg-brand-green"></span> Live</span>
+      </div>
+      <div class="overflow-x-auto">
+        <table class="w-full min-w-[640px] text-left text-sm">
+          <thead><tr class="border-b-2 border-black bg-neutral-50">
+            <th class="px-4 py-3 text-[10px] font-black uppercase sm:px-5">No. Antrian</th>
+            <th class="px-4 py-3 text-[10px] font-black uppercase sm:px-5">Kode Tracking</th>
+            <th class="px-4 py-3 text-[10px] font-black uppercase sm:px-5">Nama</th>
+            <th class="px-4 py-3 text-[10px] font-black uppercase sm:px-5">Layanan</th>
+            <th class="px-4 py-3 text-[10px] font-black uppercase sm:px-5">Waktu</th>
+            <th class="px-4 py-3 text-[10px] font-black uppercase sm:px-5">Status</th>
+          </tr></thead>
+          <tbody id="queueTableBody" class="divide-y-2 divide-black">
+            {% for ticket in today_queue %}
+            <tr class="{% if ticket.status == 'called' or ticket.status == 'serving' %}bg-blue-50{% elif ticket.status == 'done' %}bg-green-50/50{% endif %}">
+              <td class="px-4 py-3 font-black sm:px-5">{{ ticket.ticket_number }}</td>
+              <td class="px-4 py-3 font-mono text-xs font-semibold text-neutral-600 sm:px-5">{{ ticket.tracking_code }}</td>
+              <td class="px-4 py-3 font-semibold sm:px-5">{{ ticket.customer_name }}</td>
+              <td class="px-4 py-3 sm:px-5">{{ ticket.service_type }}</td>
+              <td class="px-4 py-3 font-medium sm:px-5">{{ ticket.created_at|date:"H:i" }}</td>
+              <td class="px-4 py-3 sm:px-5">{% include "includes/status_badge.html" with status=ticket.status label=ticket.get_status_display %}</td>
+            </tr>
+            {% empty %}
+            <tr><td colspan="6" class="px-4 py-10 text-center text-sm font-semibold text-neutral-500 sm:px-5">Belum ada antrian hari ini</td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </section>
+    {% if recent_activities %}
+    <section class="border-4 border-black bg-white shadow-brutal">
+      <div class="border-b-4 border-black px-4 py-3 sm:px-5"><h2 class="text-sm font-black uppercase sm:text-base">Aktivitas Terakhir</h2></div>
+      <ul class="divide-y-2 divide-black">
         {% for act in recent_activities %}
-        <li class="activity-item">
-          <span class="activity-dot {% if act.status == 'done' %}green{% elif act.status == 'called' or act.status == 'serving' %}blue{% else %}red{% endif %}"></span>
-          <span style="flex:1;"><strong>{{ act.ticket_number }}</strong> {{ act.get_status_display }}{% if act.counter %} - {{ act.counter }}{% endif %}</span>
-          <span style="font-size:.75rem;color:var(--gray-400);">
-            {% if act.called_at %}{{ act.called_at|date:"H:i" }}{% endif %}
-          </span>
+        <li class="flex items-center gap-3 px-4 py-3 sm:px-5">
+          {% if act.status == 'done' %}<span class="h-3 w-3 shrink-0 border-2 border-black bg-brand-green"></span>
+          {% elif act.status == 'called' or act.status == 'serving' %}<span class="h-3 w-3 shrink-0 border-2 border-black bg-brand-blue"></span>
+          {% else %}<span class="h-3 w-3 shrink-0 border-2 border-black bg-brand-yellow"></span>{% endif %}
+          <span class="min-w-0 flex-1 text-sm font-semibold"><strong class="font-black">{{ act.ticket_number }}</strong> {{ act.get_status_display }}{% if act.counter %} — {{ act.counter }}{% endif %}</span>
+          <span class="shrink-0 text-xs font-bold text-neutral-500">{% if act.called_at %}{{ act.called_at|date:"H:i" }}{% elif act.completed_at %}{{ act.completed_at|date:"H:i" }}{% endif %}</span>
         </li>
         {% endfor %}
       </ul>
-    </div>
+    </section>
+    {% endif %}
   </div>
-  {% endif %}
+  <aside class="space-y-6 lg:col-span-4">
+    {% if current_called %}
+    <div class="border-4 border-black bg-brand-yellow p-5 text-center shadow-brutal-lg sm:p-6">
+      <p class="text-xs font-black uppercase tracking-widest">Sedang Dilayani</p>
+      <p class="mt-2 text-5xl font-black leading-none sm:text-6xl">{{ current_called.ticket_number }}</p>
+      <p class="mt-3 text-sm font-bold">{{ current_called.customer_name }}</p>
+      <a href="?query={{ current_called.tracking_code }}" class="mt-4 inline-block border-2 border-black bg-black px-5 py-2 text-xs font-black uppercase text-white shadow-brutal-sm transition hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-none">Lihat Detail</a>
+    </div>
+    {% endif %}
+    <div class="border-4 border-black bg-white shadow-brutal">
+      <div class="border-b-4 border-black px-4 py-3 sm:px-5"><h2 class="text-sm font-black uppercase">Antrian Berikutnya</h2></div>
+      <ul class="max-h-[420px] divide-y-2 divide-black overflow-y-auto">
+        {% for ticket in next_waiting %}
+        <li class="flex items-center justify-between gap-3 px-4 py-3 sm:px-5">
+          <span class="text-lg font-black">{{ ticket.ticket_number }}</span>
+          <span class="truncate text-xs font-semibold text-neutral-600">{{ ticket.customer_name }}</span>
+          <span class="inline-flex shrink-0 border-2 border-black bg-brand-yellow px-2 py-0.5 text-[10px] font-black uppercase">Pending</span>
+        </li>
+        {% empty %}
+        <li class="px-4 py-8 text-center text-sm font-semibold text-neutral-500 sm:px-5">Tidak ada antrian menunggu</li>
+        {% endfor %}
+      </ul>
+    </div>
+  </aside>
 </div>
+
+<section class="mt-10 border-4 border-black bg-brand-yellow p-6 shadow-brutal sm:mt-12 sm:flex sm:items-center sm:justify-between sm:gap-6 sm:p-8">
+  <div>
+    <p class="text-xs font-black uppercase tracking-wide text-black/70">Belum punya nomor?</p>
+    <h2 class="mt-1 text-xl font-black uppercase sm:text-2xl">Belum Memiliki Nomor Antrian?</h2>
+  </div>
+  <a href="{% url 'antrian:ambil_antrian' %}" class="mt-4 inline-flex min-h-[48px] items-center justify-center border-4 border-black bg-white px-6 text-sm font-black uppercase shadow-brutal transition hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-none sm:mt-0">Ambil Nomor Antrian</a>
+</section>
 {% endblock %}
 
 {% block extra_js %}
+{% load static %}
 <script>
-// Auto-refresh queue data every 5 seconds
-let lastCalledNumber = '{{ current_called.ticket_number|default:"" }}';
-
-function refreshQueue() {
-  fetch('/api/queue-status/')
-    .then(r => r.json())
-    .then(data => {
-      // Check if a new number was called
-      if (data.current && data.current.number !== lastCalledNumber) {
-        lastCalledNumber = data.current.number;
-        showNotification(
-          'Nomor ' + data.current.number + ' Dipanggil!',
-          'Silakan menuju ' + data.current.counter + '. Nama: ' + data.current.name
-        );
-      }
-
-      // Update table
-      if (data.all_tickets && data.all_tickets.length > 0) {
-        let html = '';
-        data.all_tickets.forEach(t => {
-          let rowClass = t.status === 'called' ? 'row-called' : '';
-          html += '<tr class="' + rowClass + '">';
-          html += '<td><strong>' + t.number + '</strong></td>';
-          html += '<td style="font-family:monospace;color:var(--gray-500);">' + t.tracking + '</td>';
-          html += '<td>' + t.name + '</td>';
-          html += '<td>' + t.service + '</td>';
-          html += '<td>' + t.time + '</td>';
-          html += '<td><span class="badge badge-' + t.status + '">' + t.status_display + '</span></td>';
-          html += '</tr>';
-        });
-        document.getElementById('queueTableBody').innerHTML = html;
-      }
-
-      // Blink live indicator
-      const li = document.getElementById('liveIndicator');
-      li.style.color = 'var(--green-500)';
-      setTimeout(() => { li.style.color = 'var(--gray-400)'; }, 500);
-    })
-    .catch(() => {});
-}
-
-function showNotification(title, message) {
-  const el = document.getElementById('callNotification');
-  document.getElementById('notifTitle').textContent = title;
-  document.getElementById('notifMessage').textContent = message;
-  el.style.display = 'flex';
-
-  // Browser notification
-  if ('Notification' in window && Notification.permission === 'granted') {
-    new Notification(title, { body: message });
-  }
-
-  // Sound
-  try {
-    const ctx = new (window.AudioContext || window.webkitAudioContext)();
-    const osc = ctx.createOscillator();
-    osc.type = 'sine';
-    osc.frequency.value = 880;
-    osc.connect(ctx.destination);
-    osc.start();
-    setTimeout(() => osc.stop(), 200);
-    setTimeout(() => {
-      const osc2 = ctx.createOscillator();
-      osc2.type = 'sine';
-      osc2.frequency.value = 1100;
-      osc2.connect(ctx.destination);
-      osc2.start();
-      setTimeout(() => osc2.stop(), 300);
-    }, 250);
-  } catch(e) {}
-}
-
-// Request notification permission
-if ('Notification' in window && Notification.permission === 'default') {
-  Notification.requestPermission();
-}
-
-setInterval(refreshQueue, 5000);
+  document.body.dataset.lastCalled = '{{ current_called.ticket_number|default:"" }}';
+  document.body.dataset.queueApi = '{% url "antrian:api_queue_status" %}';
 </script>
+<script src="{% static 'js/cek-status.js' %}"></script>
 {% endblock %}

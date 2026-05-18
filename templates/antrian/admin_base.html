@@ -4,54 +4,73 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>{% block admin_title %}Dashboard{% endblock %} - Panel Admin AntrianBarang</title>
-  <link rel="stylesheet" href="{% static 'css/style.css' %}">
+  <title>{% block admin_title %}Dashboard{% endblock %} - Panel Admin</title>
+  {% include "includes/brutal_head.html" %}
+  {% block extra_head %}{% endblock %}
 </head>
-<body>
-<div class="admin-layout">
-  <!-- Mobile Sidebar Overlay -->
-  <div class="navbar-overlay" id="sidebarOverlay" onclick="closeSidebar()"></div>
+<body class="bg-neutral-100 text-black antialiased">
+<div class="flex min-h-screen">
+  <div id="sidebarOverlay" class="fixed inset-0 z-40 hidden bg-black/50 md:hidden" onclick="closeSidebar()"></div>
 
-  <!-- Sidebar -->
-  <aside class="sidebar" id="adminSidebar">
-    <div class="sidebar-brand">Panel Admin</div>
-    <div class="sidebar-subtitle">Manajemen Logistik</div>
-    <ul class="sidebar-nav">
-      <li><a href="{% url 'antrian:admin_dashboard' %}" class="{% if active_page == 'dashboard' %}active{% endif %}"><span class="icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg></span> Dashboard</a></li>
-      <li><a href="{% url 'antrian:admin_antrian_aktif' %}" class="{% if active_page == 'antrian_aktif' %}active{% endif %}"><span class="icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5v2m0 4v2m0 4v2M5 5a2 2 0 00-2 2v3a2 2 0 002 2h14a2 2 0 002-2V7a2 2 0 00-2-2H5z"/><rect x="3" y="5" width="18" height="7" rx="2"/><rect x="3" y="14" width="18" height="5" rx="1"/></svg></span> Antrian Aktif</a></li>
-      <li><a href="{% url 'antrian:admin_riwayat' %}" class="{% if active_page == 'riwayat' %}active{% endif %}"><span class="icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></span> Riwayat</a></li>
-      <li><a href="{% url 'antrian:admin_generate_resi' %}" class="{% if active_page == 'generate_resi' %}active{% endif %}"><span class="icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="9" y1="21" x2="9" y2="9"/></svg></span> Generate Resi</a></li>
-      <li><a href="{% url 'antrian:admin_pengaturan' %}" class="{% if active_page == 'pengaturan' %}active{% endif %}"><span class="icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg></span> Pengaturan</a></li>
-    </ul>
-    <div class="sidebar-user">
-      <div class="sidebar-avatar">{{ request.user.first_name|default:"A"|truncatechars:1 }}</div>
-      <div class="sidebar-user-info">
-        <div class="name">{{ request.user.get_full_name|default:request.user.username }}</div>
-        <div class="role">{% if officer %}Petugas {{ officer.counter }}{% else %}Administrator{% endif %}</div>
+  <aside id="adminSidebar" class="fixed inset-y-0 left-0 z-50 flex w-64 -translate-x-full flex-col border-r-4 border-black bg-white shadow-brutal transition-transform md:static md:translate-x-0">
+    <div class="border-b-4 border-black bg-brand-yellow px-5 py-5">
+      <p class="text-lg font-black uppercase">Panel Admin</p>
+      <p class="text-xs font-bold uppercase text-black/70">Manajemen Logistik</p>
+    </div>
+    <nav class="flex-1 space-y-1 p-3">
+      {% with ap=active_page %}
+      <a href="{% url 'antrian:admin_dashboard' %}" class="flex items-center gap-3 border-2 px-3 py-2.5 text-sm font-bold uppercase transition {% if ap == 'dashboard' %}border-black bg-brand-yellow shadow-brutal-sm{% else %}border-transparent hover:border-black hover:bg-brand-purple{% endif %}">
+        <svg class="h-5 w-5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+        Dashboard
+      </a>
+      <a href="{% url 'antrian:admin_antrian_aktif' %}" class="flex items-center gap-3 border-2 px-3 py-2.5 text-sm font-bold uppercase transition {% if ap == 'antrian_aktif' %}border-black bg-brand-yellow shadow-brutal-sm{% else %}border-transparent hover:border-black hover:bg-brand-purple{% endif %}">
+        <svg class="h-5 w-5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 5v2m0 4v2m0 4v2M5 5a2 2 0 00-2 2v3a2 2 0 002 2h14a2 2 0 002-2V7a2 2 0 00-2-2H5z"/></svg>
+        Antrian Aktif
+      </a>
+      <a href="{% url 'antrian:admin_riwayat' %}" class="flex items-center gap-3 border-2 px-3 py-2.5 text-sm font-bold uppercase transition {% if ap == 'riwayat' %}border-black bg-brand-yellow shadow-brutal-sm{% else %}border-transparent hover:border-black hover:bg-brand-purple{% endif %}">
+        <svg class="h-5 w-5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+        Riwayat
+      </a>
+      <a href="{% url 'antrian:admin_generate_resi' %}" class="flex items-center gap-3 border-2 px-3 py-2.5 text-sm font-bold uppercase transition {% if ap == 'generate_resi' %}border-black bg-brand-yellow shadow-brutal-sm{% else %}border-transparent hover:border-black hover:bg-brand-purple{% endif %}">
+        <svg class="h-5 w-5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/></svg>
+        Generate Resi
+      </a>
+      <a href="{% url 'antrian:admin_pengaturan' %}" class="flex items-center gap-3 border-2 px-3 py-2.5 text-sm font-bold uppercase transition {% if ap == 'pengaturan' %}border-black bg-brand-yellow shadow-brutal-sm{% else %}border-transparent hover:border-black hover:bg-brand-purple{% endif %}">
+        <svg class="h-5 w-5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
+        Pengaturan
+      </a>
+      {% endwith %}
+    </nav>
+    <div class="border-t-4 border-black p-4">
+      <div class="flex items-center gap-3">
+        <div class="flex h-10 w-10 items-center justify-center border-2 border-black bg-brand-blue text-sm font-black text-white">{{ request.user.first_name|default:"A"|truncatechars:1 }}</div>
+        <div class="min-w-0">
+          <p class="truncate text-sm font-black">{{ request.user.get_full_name|default:request.user.username }}</p>
+          <p class="text-[10px] font-bold uppercase text-neutral-500">{% if officer %}Petugas {{ officer.counter }}{% else %}Administrator{% endif %}</p>
+        </div>
       </div>
     </div>
   </aside>
 
-  <!-- Main Content -->
-  <main class="admin-main">
-    {% block admin_content %}{% endblock %}
-  </main>
-
-  <!-- Mobile Sidebar Toggle -->
-  <button class="mobile-sidebar-btn" onclick="toggleSidebar()" aria-label="Menu">
-    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
-  </button>
+  <div class="flex min-w-0 flex-1 flex-col">
+    <header class="flex items-center justify-between gap-4 border-b-4 border-black bg-white px-4 py-3 md:px-6">
+      <button type="button" class="border-2 border-black p-2 md:hidden" onclick="toggleSidebar()" aria-label="Menu">
+        <svg class="h-6 w-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+      </button>
+      <a href="{% url 'antrian:ambil_antrian' %}" class="text-sm font-black uppercase md:ml-auto">← Situs Publik</a>
+    </header>
+    <main class="flex-1 p-4 md:p-6 lg:p-8">
+      {% block admin_content %}{% endblock %}
+    </main>
+  </div>
 </div>
 
-<script>
-function toggleSidebar() {
-  document.getElementById('adminSidebar').classList.toggle('open');
-  document.getElementById('sidebarOverlay').classList.toggle('open');
-}
-function closeSidebar() {
-  document.getElementById('adminSidebar').classList.remove('open');
-  document.getElementById('sidebarOverlay').classList.remove('open');
-}
-</script>
+<button type="button" class="fixed bottom-4 right-4 z-30 border-4 border-black bg-brand-yellow p-3 shadow-brutal md:hidden" onclick="toggleSidebar()" aria-label="Menu">
+  <svg class="h-6 w-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+</button>
+
+{% load static %}
+<script src="{% static 'js/admin-sidebar.js' %}"></script>
+{% block extra_js %}{% endblock %}
 </body>
 </html>

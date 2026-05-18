@@ -98,11 +98,13 @@ def cek_status(request):
     total_today = today_queue.count()
     waiting_count = today_queue.filter(status='waiting').count()
     done_count = today_queue.filter(status='done').count()
+    next_waiting = today_queue.filter(status='waiting')[:15]
 
     context = {
         'query': query,
         'results': results,
         'today_queue': today_queue,
+        'next_waiting': next_waiting,
         'current_called': current_called,
         'recent_activities': recent_activities,
         'total_today': total_today,

@@ -5,183 +5,73 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Display Antrian - AntrianBarang</title>
-  <link rel="stylesheet" href="{% static 'css/style.css' %}">
-  <style>
-    body{background:var(--gray-900);margin:0}
-    .display-navbar{display:flex;justify-content:space-between;align-items:center;padding:16px 32px;color:#fff}
-    .display-navbar .brand{font-size:1.125rem;font-weight:800;color:#fff}
-    .display-navbar .brand span{color:var(--primary-light)}
-    .display-navbar .nav-links a{color:var(--gray-400);text-decoration:none;font-size:.875rem;margin-left:24px}
-    .display-navbar .nav-links a.active{color:#fff}
-  </style>
+  {% include "includes/brutal_head.html" %}
 </head>
-<body>
-  <nav class="display-navbar">
-    <div class="brand">Antrian<span>Barang</span></div>
-    <div class="nav-links">
-      <a href="{% url 'antrian:ambil_antrian' %}">Ambil Antrian</a>
-      <a href="{% url 'antrian:cek_status' %}">Cek Status</a>
-      <a href="#">Bantuan</a>
+<body class="display-page" data-initial-number="{{ current_serving.ticket_number|default:'' }}">
+  <nav class="display-nav">
+    <a href="{% url 'antrian:ambil_antrian' %}" class="text-lg font-black uppercase text-white">Antrian<span class="text-brand-yellow">Barang</span></a>
+    <div class="flex gap-4 text-sm font-bold uppercase">
+      <a href="{% url 'antrian:ambil_antrian' %}" class="text-neutral-400 hover:text-brand-yellow">Ambil Antrian</a>
+      <a href="{% url 'antrian:cek_status' %}" class="text-neutral-400 hover:text-brand-yellow">Cek Status</a>
+      <a href="{% url 'antrian:bantuan' %}" class="text-brand-yellow">Bantuan</a>
     </div>
   </nav>
 
-  <div style="padding:16px 32px;">
-    <div class="display-grid">
-      <!-- Main: Current Number -->
-      <div class="display-current">
-        <div class="display-status-label">SEDANG DILAYANI</div>
-        {% if current_serving %}
-          <div class="display-number" id="currentNumber">{{ current_serving.ticket_number }}</div>
-          <div class="display-counter-badge" id="currentCounter">{{ current_serving.counter|default:"LOKET 01" }}</div>
-        {% else %}
-          <div class="display-number" id="currentNumber" style="font-size:4rem;color:var(--gray-500);">---</div>
-          <p id="currentEmpty" style="color:var(--gray-500);">Belum ada antrian dipanggil</p>
-        {% endif %}
-        <div class="display-info-row">
-          <div class="display-info-item">
-            <div class="icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div>
-            <div class="label">Rata-Rata Tunggu</div>
-            <div class="value" id="estWait">{{ est_wait|default:"0" }} Menit</div>
-          </div>
-          <div class="display-info-item">
-            <div class="icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg></div>
-            <div class="label">Sisa Antrian</div>
-            <div class="value" id="totalWaiting">{{ total_waiting }} Orang</div>
-          </div>
+  <div class="display-grid">
+    <section class="display-current">
+      <p class="display-current__label">Sedang Dilayani</p>
+      {% if current_serving %}
+      <p class="display-current__number" id="currentNumber">{{ current_serving.ticket_number }}</p>
+      <p class="display-counter-badge" id="currentCounter">{{ current_serving.counter|default:"LOKET 01" }}</p>
+      <p id="currentEmpty" class="is-hidden text-neutral-500">Belum ada antrian dipanggil</p>
+      {% else %}
+      <p class="display-current__number is-empty" id="currentNumber">---</p>
+      <p class="display-counter-badge is-hidden" id="currentCounter"></p>
+      <p id="currentEmpty">Belum ada antrian dipanggil</p>
+      {% endif %}
+      <div class="display-info-row">
+        <div class="display-info-item">
+          <p class="label">Rata-Rata Tunggu</p>
+          <p class="value" id="estWait">{{ est_wait|default:"0" }} Menit</p>
+        </div>
+        <div class="display-info-item">
+          <p class="label">Sisa Antrian</p>
+          <p class="value" id="totalWaiting">{{ total_waiting }} Orang</p>
         </div>
       </div>
+    </section>
 
-      <!-- Sidebar: Upcoming -->
-      <div class="display-sidebar">
-        <h3>Antrian Berikutnya</h3>
-        <ul class="upcoming-list" id="upcomingList">
-          {% for ticket in upcoming %}
-          <li class="upcoming-item">
-            <span class="number">{{ ticket.ticket_number }}</span>
-          </li>
-          {% empty %}
-          <li class="upcoming-item"><span style="color:var(--gray-500);">Tidak ada antrian</span></li>
-          {% endfor %}
-        </ul>
-
-        <div class="cta-no-ticket">
-          <p>Belum Memiliki Nomor Antrian?</p>
-          <a href="{% url 'antrian:ambil_antrian' %}" class="btn">AMBIL ANTRIAN</a>
-        </div>
+    <aside class="display-sidebar">
+      <h3>Antrian Berikutnya</h3>
+      <ul class="upcoming-list" id="upcomingList">
+        {% for ticket in upcoming %}
+        <li class="upcoming-item"><span class="number">{{ ticket.ticket_number }}</span></li>
+        {% empty %}
+        <li class="upcoming-item"><span class="text-neutral-500">Tidak ada antrian</span></li>
+        {% endfor %}
+      </ul>
+      <div class="display-cta">
+        <p>Belum Memiliki Nomor Antrian?</p>
+        <a href="{% url 'antrian:ambil_antrian' %}" class="btn-brutal btn-brutal--black btn-brutal--block">Ambil Antrian</a>
       </div>
-    </div>
-
-    <!-- Commitment Banner -->
-    <div style="margin-top:32px;background:linear-gradient(135deg,rgba(30,64,175,.9),rgba(15,23,42,.9));border-radius:var(--radius-lg);padding:48px;text-align:center;color:#fff;">
-      <h2 style="font-size:1.5rem;font-weight:700;margin-bottom:8px;">Komitmen Kami Pada Efisiensi</h2>
-      <p style="color:var(--gray-300);max-width:500px;margin:0 auto;">Sistem manajemen antrian kami memastikan setiap barang diproses. Dengan transparansi penuh dan kecepatan prima.</p>
-    </div>
-
-    <footer style="padding:24px 0;display:flex;justify-content:space-between;color:var(--gray-500);font-size:.8125rem;border-top:1px solid rgba(255,255,255,.1);margin-top:32px;">
-      <span>AntrianBarang Logistics</span>
-      <span>&copy; 2024 AntrianBarang Logistics. All rights reserved.</span>
-      <div style="display:flex;gap:16px;">
-        <a href="#" style="color:var(--gray-500);text-decoration:none;">Kebijakan Privasi</a>
-        <a href="#" style="color:var(--gray-500);text-decoration:none;">Syarat Layanan</a>
-        <a href="#" style="color:var(--gray-500);text-decoration:none;">Hubungi Kami</a>
-      </div>
-    </footer>
+    </aside>
   </div>
 
-  <script>
-    let lastCalledNumber = '{{ current_serving.ticket_number|default:"" }}';
+  <section class="display-commitment">
+    <h2 class="text-2xl font-black uppercase text-brand-yellow">Komitmen Kami Pada Efisiensi</h2>
+    <p class="mx-auto mt-2 max-w-lg text-sm text-neutral-300">Sistem manajemen antrian memastikan setiap barang diproses dengan transparansi penuh.</p>
+  </section>
 
-    function updateDisplay() {
-      fetch('/api/queue-status/')
-        .then(r => r.json())
-        .then(data => {
-          const numEl = document.getElementById('currentNumber');
-          const counterEl = document.getElementById('currentCounter');
-          const emptyEl = document.getElementById('currentEmpty');
-          const waitEl = document.getElementById('estWait');
-          const totalEl = document.getElementById('totalWaiting');
-          const upcomingEl = document.getElementById('upcomingList');
+  <footer class="display-footer">
+    <span>AntrianBarang Logistics</span>
+    <span>&copy; 2026 AntrianBarang Logistics</span>
+    <div class="flex gap-4">
+      <a href="{% url 'antrian:bantuan' %}">Kebijakan Privasi</a>
+      <a href="{% url 'antrian:bantuan' %}">Syarat Layanan</a>
+      <a href="{% url 'antrian:bantuan' %}">Hubungi Kami</a>
+    </div>
+  </footer>
 
-          // Update current serving
-          if (data.current) {
-            numEl.textContent = data.current.number;
-            numEl.style.fontSize = '';
-            numEl.style.color = '';
-
-            // Pastikan counter badge ada
-            if (!counterEl) {
-              const badge = document.createElement('div');
-              badge.className = 'display-counter-badge';
-              badge.id = 'currentCounter';
-              badge.textContent = data.current.counter;
-              numEl.parentNode.insertBefore(badge, numEl.nextSibling);
-            } else {
-              counterEl.textContent = data.current.counter;
-              counterEl.style.display = '';
-            }
-
-            if (emptyEl) emptyEl.style.display = 'none';
-
-            // Animasi pulse jika nomor baru dipanggil
-            if (data.current.number !== lastCalledNumber) {
-              numEl.style.animation = 'none';
-              numEl.offsetHeight; // trigger reflow
-              numEl.style.animation = 'pulse-glow 1s ease 3';
-              lastCalledNumber = data.current.number;
-
-              // Suara notifikasi panggilan (untuk display TV)
-              try {
-                const ctx = new (window.AudioContext || window.webkitAudioContext)();
-                [660, 880, 1100].forEach((freq, i) => {
-                  setTimeout(() => {
-                    const osc = ctx.createOscillator();
-                    const gain = ctx.createGain();
-                    osc.type = 'sine';
-                    osc.frequency.value = freq;
-                    gain.gain.value = 0.3;
-                    osc.connect(gain);
-                    gain.connect(ctx.destination);
-                    osc.start();
-                    setTimeout(() => osc.stop(), 250);
-                  }, i * 350);
-                });
-              } catch(e) {}
-            }
-          } else {
-            numEl.textContent = '---';
-            numEl.style.fontSize = '4rem';
-            numEl.style.color = 'var(--gray-500)';
-            if (counterEl) counterEl.style.display = 'none';
-            if (emptyEl) { emptyEl.style.display = ''; emptyEl.textContent = 'Belum ada antrian dipanggil'; }
-          }
-
-          // Update estimasi & sisa antrian
-          if (waitEl) waitEl.textContent = (data.total_waiting * 5) + ' Menit';
-          if (totalEl) totalEl.textContent = data.total_waiting + ' Orang';
-
-          // Update upcoming list
-          if (upcomingEl) {
-            if (data.upcoming && data.upcoming.length > 0) {
-              upcomingEl.innerHTML = data.upcoming.map(t =>
-                '<li class="upcoming-item"><span class="number">' + t.number + '</span></li>'
-              ).join('');
-            } else {
-              upcomingEl.innerHTML = '<li class="upcoming-item"><span style="color:var(--gray-500);">Tidak ada antrian</span></li>';
-            }
-          }
-        })
-        .catch(() => {});
-    }
-
-    // Polling setiap 3 detik tanpa reload halaman
-    setInterval(updateDisplay, 3000);
-  </script>
-
-  <style>
-    @keyframes pulse-glow {
-      0%, 100% { transform: scale(1); text-shadow: none; }
-      50% { transform: scale(1.05); text-shadow: 0 0 30px rgba(99,102,241,.6), 0 0 60px rgba(99,102,241,.3); }
-    }
-  </style>
+  <script src="{% static 'js/display-antrian.js' %}"></script>
 </body>
 </html>

@@ -1,0 +1,13 @@
+{% if status == 'waiting' %}
+<span class="inline-flex border-2 border-black bg-brand-yellow px-2 py-0.5 text-[10px] font-black uppercase shadow-brutal-sm">Pending</span>
+{% elif status == 'called' or status == 'serving' %}
+<span class="inline-flex border-2 border-black bg-brand-blue px-2 py-0.5 text-[10px] font-black uppercase text-white shadow-brutal-sm">Diproses</span>
+{% elif status == 'done' %}
+<span class="inline-flex border-2 border-black bg-brand-green px-2 py-0.5 text-[10px] font-black uppercase shadow-brutal-sm">Selesai</span>
+{% elif status == 'skipped' %}
+<span class="inline-flex border-2 border-black bg-neutral-200 px-2 py-0.5 text-[10px] font-black uppercase shadow-brutal-sm">Dilewati</span>
+{% elif status == 'cancelled' %}
+<span class="inline-flex border-2 border-black bg-red-400 px-2 py-0.5 text-[10px] font-black uppercase text-white shadow-brutal-sm">Dibatalkan</span>
+{% else %}
+<span class="inline-flex border-2 border-black bg-neutral-300 px-2 py-0.5 text-[10px] font-black uppercase shadow-brutal-sm">{{ label|default:status }}</span>
+{% endif %}

@@ -1,0 +1,28 @@
+{% load static %}
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="{% static 'css/brutal.css' %}">
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+  tailwind.config = {
+    theme: {
+      extend: {
+        fontFamily: { sans: ['Inter', 'system-ui', 'sans-serif'] },
+        colors: {
+          brand: {
+            yellow: '#FFD600',
+            blue: '#2D5BFF',
+            green: '#00E676',
+            purple: '#E8DEFF',
+          },
+        },
+        boxShadow: {
+          brutal: '4px 4px 0px 0px #000000',
+          'brutal-lg': '6px 6px 0px 0px #000000',
+          'brutal-sm': '2px 2px 0px 0px #000000',
+        },
+      },
+    },
+  };
+</script>

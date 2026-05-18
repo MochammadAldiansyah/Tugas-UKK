@@ -5,36 +5,36 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Admin Login - AntrianBarang</title>
-  <link rel="stylesheet" href="{% static 'css/style.css' %}">
+  {% include "includes/brutal_head.html" %}
 </head>
-<body>
-  <div class="login-page">
-    <div class="login-card">
-      <h1>Antrian<span style="color:var(--primary)">Barang</span></h1>
-      <p class="subtitle">Masuk ke Panel Admin</p>
-      
-      {% if messages %}
-        {% for msg in messages %}
-        <div class="error-msg">{{ msg }}</div>
-        {% endfor %}
-      {% endif %}
+<body class="login-page">
+  <div class="login-card">
+    <h1>Antrian<span class="text-brand-blue">Barang</span></h1>
+    <p class="subtitle">Masuk ke Panel Admin</p>
 
-      <form method="post">
-        {% csrf_token %}
-        <div class="form-group">
-          <label class="form-label">USERNAME</label>
-          <input type="text" name="username" class="form-input" placeholder="Masukkan username" required>
-        </div>
-        <div class="form-group">
-          <label class="form-label">PASSWORD</label>
-          <input type="password" name="password" class="form-input" placeholder="Masukkan password" required>
-        </div>
-        <button type="submit" class="btn btn-primary">Masuk</button>
-      </form>
-      <p style="text-align:center;margin-top:16px;font-size:.8125rem;color:var(--gray-400);">
-        <a href="{% url 'antrian:ambil_antrian' %}" style="color:var(--primary);text-decoration:none;">← Kembali ke halaman utama</a>
-      </p>
+    {% if messages %}
+    <div class="mt-6 space-y-2">
+      {% for msg in messages %}
+      <p class="brutal-alert brutal-alert--error">{{ msg }}</p>
+      {% endfor %}
     </div>
+    {% endif %}
+
+    <form method="post" class="mt-8 space-y-5">
+      {% csrf_token %}
+      <div>
+        <label class="form-label">Username</label>
+        <input type="text" name="username" class="form-input" placeholder="Masukkan username" required>
+      </div>
+      <div>
+        <label class="form-label">Password</label>
+        <input type="password" name="password" class="form-input" placeholder="Masukkan password" required>
+      </div>
+      <button type="submit" class="btn-brutal btn-brutal--yellow btn-brutal--block">Masuk</button>
+    </form>
+    <p class="mt-6 text-center text-sm font-semibold">
+      <a href="{% url 'antrian:ambil_antrian' %}" class="font-black uppercase text-brand-blue underline underline-offset-4">← Kembali ke halaman utama</a>
+    </p>
   </div>
 </body>
 </html>

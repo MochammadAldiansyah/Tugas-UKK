@@ -1,0 +1,7 @@
+<div class="admin-page-header">
+  <div>
+    <h1>{{ page_title }}</h1>
+    {% if page_subtitle %}<p class="date">{{ page_subtitle }}</p>{% endif %}
+  </div>
+  <a href="{% url 'antrian:admin_logout' %}" class="btn-brutal btn-brutal--outline btn-brutal--sm">Logout</a>
+</div>
